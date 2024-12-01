@@ -11,8 +11,8 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
     ports:
       - "27017:27017"
-    # volumes:
-    #   - mongodb_data:/data/db
+    volumes:
+      - mongodb_data:/data/db
   
   mongodb-setup:
     image: python:3.10-slim
@@ -24,6 +24,8 @@ services:
       - mongodb
     env_file:
       - .env
+    links:
+      - mongodb
       
   order-service:
     build:
@@ -32,28 +34,26 @@ services:
     environment:
       - FLASK_APP=wsgi
       - FLASK_ENV=${FLASK_ENV}
-      - MONGO_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@localhost:27017/${DATABASE_NAME}?authSource=admin
+      - MONGO_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/${DATABASE_NAME}?authSource=admin
       - DATABASE_NAME=${DATABASE_NAME}
     ports:
       - "5001:5000"
     depends_on:
       - mongodb
 
-  # user-service-v1:
-  #   build:
-  #     context: ./user_service_v1
-  #   container_name: user_service_v1
-  #   environment:
-  #     - FLASK_APP=wsgi
-  #     - FLASK_ENV=${FLASK_ENV}
-  #     - MONGO_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/${DATABASE_NAME}?authSource=admin
-  #     - DATABASE_NAME=${DATABASE_NAME}
-  #   ports:
-  #     - "5002:5000"
-  #   depends_on:
-  #     - mongodb
-  #   links:
-  #     - mongodb
+  user-service-v1:
+    build:
+      context: ./user_service_v1
+    container_name: user_service_v1
+    environment:
+      - FLASK_APP=wsgi
+      - FLASK_ENV=${FLASK_ENV}
+      - MONGO_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/${DATABASE_NAME}?authSource=admin
+      - DATABASE_NAME=${DATABASE_NAME}
+    ports:
+      - "5002:5000"
+    depends_on:
+      - mongodb
 
   # kong:
   #   build:

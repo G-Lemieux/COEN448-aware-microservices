@@ -1,5 +1,6 @@
 #!/bin/bash
-
+source .env
+echo "Waiting for MongoDB to be ready..."
 # Wait for MongoDB to be ready using Python
 python3 << END
 import time
