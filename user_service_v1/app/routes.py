@@ -4,9 +4,6 @@ It includes endpoints for creating and updating user information, with validatio
 Classes:
     UserList(Resource): Handles the creation of new users.
     User(Resource): Handles the updating of existing users.
-Models:
-    delivery_address_model: A model representing a delivery address.
-    user_model: A model representing a user.
 Routes:
     /users/ (POST): Creates a new user.
     /users/<string:id> (PUT): Updates an existing user.
@@ -19,30 +16,10 @@ from flask import request, Flask, current_app
 from flask_restx import Namespace, Resource, fields
 from bson.objectid import ObjectId
 import uuid
+from user_service_v1.app.models import api, user_model, delivery_address_model
 
 # The current_app variable is a proxy to the Flask application handling the request.
 current_app : Flask
-
-api = Namespace('users', description='User related operations')
-
-delivery_address_model = api.model('DeliveryAddress', {
-    'street': fields.String(required=True, description='Street address'),
-    'city': fields.String(required=True, description='City'),
-    'state': fields.String(required=True, description='State'),
-    'postalCode': fields.String(required=True, description='Postal code'),
-    'country': fields.String(required=True, description='Country')
-})
-
-user_model = api.model('User', {
-    'userId': fields.String(required=True, description='The unique identifier for a user account'),
-    'firstName': fields.String(description='First name of the user'),
-    'lastName': fields.String(description='Last name of the user'),
-    'emails': fields.List(fields.String, required=True, description='A list of email addresses associated with the user'),
-    'deliveryAddress': fields.Nested(delivery_address_model, required=True, description='The delivery address of the user'),
-    'phoneNumber': fields.String(pattern='^[0-9]{10,15}$', description='Optional phone number for the user, 10-15 digits.'),
-    'createdAt': fields.DateTime(description='Timestamp of when the user was created.'),
-    'updatedAt': fields.DateTime(description='Timestamp of when the user was last updated.')
-})
 
 @api.route('/')
 class UserList(Resource):
