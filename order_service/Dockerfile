@@ -10,15 +10,13 @@ COPY . /app
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-
-
 # Define environment variables
-ENV FLASK_APP=order_service.wsgi
+ENV FLASK_APP=wsgi
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=5000
 
 # Make port running flask available to the world outside this container
-EXPOSE ${FLASK_RUN_PORT}
+EXPOSE 5000
 
 # Run the application
-CMD ["gunicorn", "--bind", "${FLASK_RUN_HOST}:${FLASK_RUN_PORT}", "${FLASK_APP}:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "wsgi:app"]

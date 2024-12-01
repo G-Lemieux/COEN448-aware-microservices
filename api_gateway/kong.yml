@@ -1,0 +1,37 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: order-service
+    url: http://0.0.0.0:5001
+    routes:
+      - name: order_service
+        paths:
+          - /orders
+          - /orders/<order_id>/status
+          - /orders/<order_id>/details
+        methods:
+          - GET
+          - POST
+          - PUT
+
+  - name: user-service-v1
+    url: http://0.0.0.0:5000
+    routes:
+      - name: user_service_v1
+        paths:
+          - /users
+          - /users/<user_id>
+        methods:
+          - POST
+          - PUT
+
+# plugins:
+#   - name: traffic-split
+#     route: user_route
+#     config:
+#       weighted_upstreams:
+#         - upstream: user_service_v1
+#           weight: ${USER_SERVICE_V1_WEIGHT}
+#         - upstream: user_service_v2
+#           weight: ${USER_SERVICE_V2_WEIGHT}

@@ -21,7 +21,7 @@ from flask import request, Flask, current_app
 from flask_restx import Resource, fields
 from bson.objectid import ObjectId
 import uuid
-from order_service.app.models import api, order_model, item_model, delivery_address_model
+from app.models import api, order_model, item_model, delivery_address_model
 
 # The current_app variable is a proxy to the Flask application handling the request.
 current_app: Flask
