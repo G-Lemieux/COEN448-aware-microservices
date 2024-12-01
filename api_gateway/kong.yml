@@ -3,7 +3,7 @@ _transform: true
 
 services:
   - name: order-service
-    url: http://0.0.0.0:5001
+    url: http://0.0.0.0:5003
     routes:
       - name: order_service
         paths:
@@ -16,7 +16,7 @@ services:
           - PUT
 
   - name: user-service-v1
-    url: http://0.0.0.0:5000
+    url: http://0.0.0.0:5001
     routes:
       - name: user_service_v1
         paths:
