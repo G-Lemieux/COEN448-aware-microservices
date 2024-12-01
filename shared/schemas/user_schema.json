@@ -7,6 +7,14 @@
             "type": "string",
             "description": "The unique identifier for a user account"
         },
+        "firstName": {
+            "type": "string",
+            "description": "First name of the user"
+        },
+        "lastName": {
+            "type": "string",
+            "description": "Last name of the user"
+        },
         "emails": {
             "type": "array",
             "items": {

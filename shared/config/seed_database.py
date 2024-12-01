@@ -46,19 +46,6 @@ STATUSES = ["under process", "shipping", "delivered"]
 def seed_users() -> List[Dict[str, Any]]:
     """
     Seed the MongoDB database with user data.
-
-    This function generates a list of 5 user dictionaries, each containing:
-    - userId: A unique user identifier (e.g., "u1", "u2", etc.).
-    - emails: A list containing a single email address for the user.
-    - deliveryAddress: A dictionary with the user's delivery address, including:
-        - street: A randomly generated street address.
-        - city: A randomly chosen city from the CITIES list.
-        - state: A randomly generated state identifier.
-        - postalCode: A randomly generated postal code.
-        - country: A randomly chosen country from the COUNTRIES list.
-    - phoneNumber: A randomly generated phone number.
-    - createdAt: The timestamp when the user was created.
-    - updatedAt: The timestamp when the user was last updated.
     
     The generated user data is then inserted into the 'users' collection in the MongoDB database.
     
@@ -71,6 +58,8 @@ def seed_users() -> List[Dict[str, Any]]:
     for i in range(5):  # Create 5 users
         user: Dict[str, Any] = {
             "userId": f"u{i+1}",
+            "firstName": f"firstname-{i+1}",
+            "lastName": f"lastname-{i+1}",
             "emails": [f"user{i+1}@example.com"],
             "deliveryAddress": {
                 "street": f"{random.randint(100, 999)} Example St",
