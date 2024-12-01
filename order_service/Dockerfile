@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 # Define environment variables
-ENV FLASK_APP=user_service_v1.wsgi
+ENV FLASK_APP=order_service.wsgi
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=5000
 
