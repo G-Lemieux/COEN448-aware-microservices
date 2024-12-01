@@ -24,7 +24,7 @@ import os
 from typing import List, Dict, Any
 
 # Load environment variables from .env
-load_dotenv()
+load_dotenv(dotenv_path="/shared/config/mongodb/.env")
 
 # Retrieve MongoDB credentials from .env
 MONGO_URI = os.getenv("MONGO_URI")
@@ -131,13 +131,22 @@ def seed_orders(users: List[Dict[str, Any]]) -> None:
 # Main function
 def main():
     print("Dropping existing collections...")
-    db.users.drop()  # Clear existing data
-    db.orders.drop()
+    # db.users.drop()  # Clear existing data
+    # db.orders.drop()
 
     print("Seeding database...")
     users = seed_users()
     seed_orders(users)
     print("Database seeding complete.")
+    # Retrieve and print one user
+    user = db.users.find_one()
+    print("Sample User:")
+    print(user)
+
+    # Retrieve and print one order
+    order = db.orders.find_one()
+    print("Sample Order:")
+    print(order)
 
 if __name__ == "__main__":
     main()

@@ -10,6 +10,7 @@ def create_app():
     api.add_namespace(order_api, path='/orders')
     
     # Initialize MongoDB client
+    print ("Connecting to MongoDB... ", app.config['MONGO_URI'])
     mongo_client = MongoClient(app.config['MONGO_URI'])
     app.mongo_client = mongo_client
     app.db = mongo_client[app.config['DATABASE_NAME']]

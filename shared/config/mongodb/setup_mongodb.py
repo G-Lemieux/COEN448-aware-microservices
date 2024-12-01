@@ -29,67 +29,6 @@ if not MONGO_URI or not DATABASE_NAME:
 client = MongoClient(MONGO_URI)
 db = client[DATABASE_NAME]
 
-# Initialize Users Collection
-# def setup_users_collection():
-#     """
-#     Sets up the 'users' collection in the MongoDB database with a JSON schema validator.
-
-#     The schema enforces the following structure:
-#     - userId: string (required)
-#     - firstName: string (optional)
-#     - lastName: string (optional)
-#     - emails: array of strings (required, each string must match the email pattern)
-#     - deliveryAddress: object (required) with the following properties:
-#         - street: string (required)
-#         - city: string (required)
-#         - state: string (required)
-#         - postalCode: string (required)
-#         - country: string (required)
-#     - phoneNumber: string (optional, must match the pattern for phone numbers with 10 to 15 digits)
-#     - createdAt: date (optional)
-#     - updatedAt: date (optional)
-
-#     If the collection already exists or creation fails, an exception is caught and an error message is printed.
-#     Raises:
-#         Exception: If the collection creation fails for any reason other than it already existing.
-#     """
-    
-#     try:
-#         db.create_collection("users", validator={
-#             "$jsonSchema": {
-#                 "bsonType": "object",
-#                 "required": ["userId", "emails", "deliveryAddress"],
-#                 "properties": {
-#                     "userId": {"bsonType": "string"},
-#                     "firstName": {"bsonType": "string"},
-#                     "lastName": {"bsonType": "string"},
-#                     "emails": {
-#                         "bsonType": "array",
-#                         "items": {
-#                             "bsonType": "string",
-#                             "pattern": "^.+@.+\\..+$"
-#                         }
-#                     },
-#                     "deliveryAddress": {
-#                         "bsonType": "object",
-#                         "required": ["street", "city", "state", "postalCode", "country"],
-#                         "properties": {
-#                             "street": {"bsonType": "string"},
-#                             "city": {"bsonType": "string"},
-#                             "state": {"bsonType": "string"},
-#                             "postalCode": {"bsonType": "string"},
-#                             "country": {"bsonType": "string"}
-#                         }
-#                     },
-#                     "phoneNumber": {"bsonType": "string", "pattern": "^[0-9]{10,15}$"},
-#                     "createdAt": {"bsonType": "date"},
-#                     "updatedAt": {"bsonType": "date"}
-#                 }
-#             }
-#         })
-#         print("Users collection created successfully.")
-#     except Exception as e:
-#         print(f"Users collection already exists or failed: {e}")
 
 # Initialize Users Collection
 def setup_users_collection():
@@ -173,13 +112,12 @@ def setup_orders_collection():
 
     If the collection already exists or creation fails, an exception is caught and an error message is printed.
     """
-
+    
     order_schema = {
         "bsonType": "object",
-        "required": ["orderId", "userId", "items", "totalAmount", "orderDate"],
+        "required": ["orderId", "items", "userEmails", "deliveryAddress", "orderStatus"],
         "properties": {
             "orderId": {"bsonType": "string"},
-            "userId": {"bsonType": "string"},
             "items": {
                 "bsonType": "array",
                 "items": {
@@ -187,14 +125,29 @@ def setup_orders_collection():
                     "required": ["itemId", "quantity", "price"],
                     "properties": {
                         "itemId": {"bsonType": "string"},
-                        "quantity": {"bsonType": "int"},
-                        "price": {"bsonType": "double"}
+                        "quantity": {"bsonType": "int", "minimum": 1},
+                        "price": {"bsonType": "double", "minimum": 0}
                     }
                 }
             },
-            "totalAmount": {"bsonType": "double"},
-            "orderDate": {"bsonType": "date"},
-            "deliveryDate": {"bsonType": "date"}
+            "userEmails": {
+                "bsonType": "array",
+                "items": {"bsonType": "string", "pattern": "^.+@.+$"}
+            },
+            "deliveryAddress": {
+                "bsonType": "object",
+                "required": ["street", "city", "state", "postalCode", "country"],
+                "properties": {
+                    "street": {"bsonType": "string"},
+                    "city": {"bsonType": "string"},
+                    "state": {"bsonType": "string"},
+                    "postalCode": {"bsonType": "string"},
+                    "country": {"bsonType": "string"}
+                }
+            },
+            "orderStatus": {"bsonType": "string", "enum": ["under process", "shipping", "delivered"]},
+            "createdAt": {"bsonType": "date"},
+            "updatedAt": {"bsonType": "date"}
         }
     }
 
@@ -208,6 +161,9 @@ def setup_orders_collection():
 # Main function to set up the database
 def main():
     print("Setting up MongoDB...")
+    # Drop existing collections if they exist
+    db.users.drop()
+    db.orders.drop()
     setup_users_collection()
     setup_orders_collection()
     print("MongoDB setup complete.")

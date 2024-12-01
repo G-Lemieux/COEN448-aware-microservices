@@ -12,6 +12,9 @@ COPY kong.conf /etc/kong/kong.conf
 COPY kong.yml /etc/kong/kong.yml.template
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
+# Expose necessary ports
+EXPOSE 8000 8443 8001 8444
+
 RUN chmod +x /docker-entrypoint.sh && \
     chown -R kong:kong /etc/kong
 

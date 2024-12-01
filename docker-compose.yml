@@ -3,94 +3,84 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:latest
-    build:
-      context: .
-      dockerfile: shared/config/mongodb/Dockerfile
     container_name: mongo_container
+    hostname: mongodb
     environment:
       - MONGO_INITDB_DATABASE=${DATABASE_NAME}
-      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
-      - MONGO_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@0.0.0.0:27017/${DATABASE_NAME}?authSource=admin
     ports:
       - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - db-network
-
-  user-service-v1:
+    # volumes:
+    #   - mongodb_data:/data/db
+  
+  mongodb-setup:
+    image: python:3.10-slim
+    container_name: mongo_setup
     build:
-      context: ./user_service_v1
+      context: ./shared/config/mongodb/
+      dockerfile: Dockerfile
+    depends_on:
+      - mongodb
+    env_file:
+      - .env
+      
+  order-service:
+    build:
+      context: ./order_service
+    container_name: order_service
     environment:
       - FLASK_APP=wsgi
       - FLASK_ENV=${FLASK_ENV}
-      - MONGO_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@0.0.0.0:27017/${DATABASE_NAME}?authSource=admin
+      - MONGO_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@localhost:27017/${DATABASE_NAME}?authSource=admin
       - DATABASE_NAME=${DATABASE_NAME}
     ports:
       - "5001:5000"
     depends_on:
       - mongodb
-    networks:
-      - service-network
-      - db-network
 
-  order-service:
-    build:
-      context: ./order_service
-    environment:
-      - FLASK_APP=wsgi
-      - FLASK_ENV=${FLASK_ENV}
-      - MONGO_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@0.0.0.0:27017/${DATABASE_NAME}?authSource=admin
-      - DATABASE_NAME=${DATABASE_NAME}
-    ports:
-      - "5003:5000"
-    depends_on:
-      - mongodb
-    networks:
-      - service-network
-      - db-network
+  # user-service-v1:
+  #   build:
+  #     context: ./user_service_v1
+  #   container_name: user_service_v1
+  #   environment:
+  #     - FLASK_APP=wsgi
+  #     - FLASK_ENV=${FLASK_ENV}
+  #     - MONGO_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/${DATABASE_NAME}?authSource=admin
+  #     - DATABASE_NAME=${DATABASE_NAME}
+  #   ports:
+  #     - "5002:5000"
+  #   depends_on:
+  #     - mongodb
+  #   links:
+  #     - mongodb
 
-  kong:
-    build:
-      context: ./api_gateway
-      dockerfile: Dockerfile
-    environment:
-      - KONG_DATABASE=off
-      - KONG_DECLARATIVE_CONFIG=/etc/kong/kong.yml
-      - KONG_PROXY_ACCESS_LOG=/dev/stdout
-      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
-      - KONG_PROXY_ERROR_LOG=/dev/stderr
-      - KONG_ADMIN_ERROR_LOG=/dev/stderr
-      - KONG_ADMIN_LISTEN=0.0.0.0:8001
-      - USER_SERVICE_V1_WEIGHT=${USER_SERVICE_V1_WEIGHT}
-      - USER_SERVICE_V2_WEIGHT=${USER_SERVICE_V2_WEIGHT}
-    ports:
-      - "8080:8000"
-      - "8443:8443"
-      - "8081:8001"
-      - "8444:8444"
-    networks:
-      - api-network
-      - service-network
+  # kong:
+  #   build:
+  #     context: ./api_gateway
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - KONG_DATABASE=off
+  #     - KONG_DECLARATIVE_CONFIG=/etc/kong/kong.yml
+  #     - KONG_PROXY_ACCESS_LOG=/dev/stdout
+  #     - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+  #     - KONG_PROXY_ERROR_LOG=/dev/stderr
+  #     - KONG_ADMIN_ERROR_LOG=/dev/stderr
+  #     - KONG_ADMIN_LISTEN=0.0.0.0:8081
+  #     - USER_SERVICE_V1_WEIGHT=${USER_SERVICE_V1_WEIGHT}
+  #     - USER_SERVICE_V2_WEIGHT=${USER_SERVICE_V2_WEIGHT}
+  #   ports:
+  #     - "8080:8000"
+  #     - "8443:8443"
+  #     - "8081:8001"
+  #     - "8444:8444"
 
-  konga:
-    image: pantsel/konga:latest
-    environment:
-      - NODE_ENV=production
-    ports:
-      - "1337:1337"
-    networks:
-      - api-network
-      - service-network
+  # konga:
+  #   image: pantsel/konga:latest
+  #   environment:
+  #     - NODE_ENV=production
+  #   ports:
+  #     - "1337:1337"
 
 volumes:
   mongodb_data:
-
-networks:
-  api-network:
-    driver: bridge
-  service-network:
-    driver: bridge
-  db-network:
-    driver: bridge

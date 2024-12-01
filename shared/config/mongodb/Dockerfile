@@ -1,21 +1,25 @@
-# Start with the official MongoDB image
-FROM mongo:latest
+# Use an official Python runtime as a parent image
+FROM python:3.10
 
-# Install Python and necessary libraries
-RUN apt-get update && apt-get install -y python3 python3-pip && apt-get clean
-
-# Set the working directory inside the container
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy the Python scripts and .env file from the parent directory
-COPY shared/config/setup_mongodb.py shared/config/seed_database.py shared/config/.env /app/
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-RUN pip3 install pymongo python-dotenv
+# Copy the requirements file and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy entrypoint script
-COPY shared/config/mongodb/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# Copy the Python scripts and .env file
+COPY setup_mongodb.py /app
+COPY seed_database.py /app
+COPY .env /app
+COPY entrypoint.sh /app
 
-# Use the custom entrypoint script
-ENTRYPOINT ["docker-entrypoint.sh"]
+# Make the entrypoint script executable
+RUN chmod +x entrypoint.sh
+
+# Set the entrypoint to the shell script
+ENTRYPOINT ["/app/entrypoint.sh"]
