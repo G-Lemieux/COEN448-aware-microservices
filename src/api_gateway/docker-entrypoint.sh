@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# Replace environment variables in kong.yml
+# Replace environment variables in kong.yml.template
 envsubst < /etc/kong/kong.yml.template > /etc/kong/kong.yml
 
 # Prepare Kong prefix directory

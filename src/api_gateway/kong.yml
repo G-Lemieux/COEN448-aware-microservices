@@ -2,26 +2,31 @@ _format_version: "3.0"
 _transform: true
 
 services:
-  - name: order-service
-    url: http://0.0.0.0:5003
+  - name: kong_order_service
+    url: http://order-service:5000
+    protocol: http
     routes:
       - name: order_service
         paths:
-          - /orders
-          - /orders/<order_id>/status
-          - /orders/<order_id>/details
+          - "/orders"
+          - "/orders/(?<order_id>[\\w-]+)/(?<action>(status|details))"
+        strip_path: false
+        preserve_host: true
         methods:
           - GET
           - POST
           - PUT
 
-  - name: user-service-v1
-    url: http://0.0.0.0:5001
+  - name: kong_user_service_v1 
+    url: http://user-service-v1:5000
+    protocol: http
     routes:
       - name: user_service_v1
         paths:
-          - /users
-          - /users/<user_id>
+          - "/users"
+          - "/users/(?<user_id>[\\w-]+)"
+        strip_path: false
+        preserve_host: true
         methods:
           - POST
           - PUT
