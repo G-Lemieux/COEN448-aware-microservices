@@ -109,6 +109,7 @@ def seed_orders(users: List[Dict[str, Any]]) -> None:
         user: Dict[str, Any] = random.choice(users)
         order: Dict[str, Any] = {
             "orderId": f"o{i+1}",
+            "userId": user["userId"],
             "items": [
                 {
                     "itemId": f"item{j+1}",

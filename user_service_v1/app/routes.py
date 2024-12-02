@@ -17,6 +17,7 @@ from flask_restx import Namespace, Resource, fields
 from bson.objectid import ObjectId
 import uuid
 from app.models import api, user_model, delivery_address_model
+from app.events import publish_user_update_event
 
 # The current_app variable is a proxy to the Flask application handling the request.
 current_app : Flask
@@ -141,4 +142,9 @@ class User(Resource):
         users_collection.update_one({'userId': id}, {'$set': data})
         new_user: dict = users_collection.find_one({'userId': id})
         
+        # emails = new_user["emails"]
+        # deliveryAddress = new_user["deliveryAddress"]
+
+        # # Publish the update event
+        # publish_user_update_event(id, emails, deliveryAddress)
         return [old_user, new_user]
