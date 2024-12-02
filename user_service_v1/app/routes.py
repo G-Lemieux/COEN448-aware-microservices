@@ -16,8 +16,8 @@ from flask import request, Flask, current_app
 from flask_restx import Namespace, Resource, fields
 from bson.objectid import ObjectId
 import uuid
-from app.models import api, user_model, delivery_address_model
-from app.events import publish_user_update_event
+from user_service_v1.app.models import api, user_model, delivery_address_model
+from user_service_v1.app.events import publish_user_update_event
 
 # The current_app variable is a proxy to the Flask application handling the request.
 current_app : Flask

@@ -33,7 +33,7 @@ services:
       dockerfile: order_service/Dockerfile
     container_name: order_service
     environment:
-      - FLASK_APP=wsgi
+      - FLASK_APP=order_service.wsgi:app
       - FLASK_ENV=${FLASK_ENV}
       - MONGO_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/${DATABASE_NAME}?authSource=admin
       - DATABASE_NAME=${DATABASE_NAME}
@@ -54,7 +54,7 @@ services:
       dockerfile: user_service_v1/Dockerfile
     container_name: user_service_v1
     environment:
-      - FLASK_APP=wsgi
+      - FLASK_APP=user_service_v1.wsgi:app
       - FLASK_ENV=${FLASK_ENV}
       - MONGO_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/${DATABASE_NAME}?authSource=admin
       - DATABASE_NAME=${DATABASE_NAME}
@@ -74,14 +74,15 @@ services:
     container_name: rabbitmq
     hostname: rabbitmq
     ports:
-      - "5672:5672" # RabbitMQ messaging port
+      - "5673:5673" # RabbitMQ messaging port
       - "15672:15672" # RabbitMQ management UI
     expose:
       - 5673
       - 15672
     environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_NODE_PORT: 5673 # had to change the default port because of a conflict with the mongodb port 
     healthcheck:
       test: rabbitmq-diagnostics check_port_connectivity
       interval: 30s

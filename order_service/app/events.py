@@ -1,7 +1,6 @@
 import json
 from shared.config.rabbitmq_config import create_channel, get_connection
 from flask import current_app
-from app.models import api
 import os
 from dotenv import load_dotenv
 
@@ -17,19 +16,17 @@ def consume_user_update_events():
         
         # Extract the data
         user_id = event['userId']
-        emails = event.get('emails')
+        emails = event.get('userEmails')
         delivery_address = event.get('deliveryAddress')
 
         print(event, flush=True)
 
         orders_collection = current_app.orders_collection
         old_orders = list(orders_collection.find({'userId': user_id}))
-        if not old_orders:
-            api.abort(404, "Order not found")
         
         update_fields = {}
         if emails:
-            update_fields['emails'] = emails
+            update_fields['userEmails'] = emails
         if delivery_address:
             update_fields['deliveryAddress'] = delivery_address
 
@@ -37,11 +34,7 @@ def consume_user_update_events():
             orders_collection.update_one({'orderId': order["orderId"]}, {'$set': update_fields})
         
         ch.basic_ack(delivery_tag=method.delivery_tag)
-    
-    # Declare the queue (ensure it exists)
-    queue_name = 'user_updates'
-    channel.queue_declare(queue=queue_name, durable=True)
-    channel.queue_bind(exchange='user_order', queue=queue_name, routing_key=queue_name)
+        
     channel.basic_consume(queue=QUEUE_NAME, on_message_callback=callback, auto_ack=False)
     print("Waiting for events...")
     channel.start_consuming()

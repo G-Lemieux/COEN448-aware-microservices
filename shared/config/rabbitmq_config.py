@@ -13,6 +13,8 @@ def get_connection():
     return pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST,port=RABBITMQ_PORT, credentials=credentials))
 
 def create_channel(queue_name):
+    print(RABBITMQ_HOST)
+    print(RABBITMQ_PORT)
     print(RABBITMQ_USER)
     print(RABBITMQ_PASSWORD)
     connection = get_connection()

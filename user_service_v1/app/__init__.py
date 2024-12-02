@@ -1,11 +1,11 @@
 from flask import Flask
 from flask_restx import Api
-from app.routes import api as user_api
+from user_service_v1.app.routes import api as user_api
 from pymongo import MongoClient
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object('app.config.Config')
+    app.config.from_object('user_service_v1.app.config.Config')
     api = Api(app)
     api.add_namespace(user_api, path='/users')
     

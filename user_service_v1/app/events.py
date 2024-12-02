@@ -22,5 +22,5 @@ def publish_user_update_event(user_id, email, address):
         #     delivery_mode=2,  # Make the message persistent
         # )
     )
-    print(f"Published event: {event}", flush=True)
+    print(f"Published event: {event}")
     connection.close()
