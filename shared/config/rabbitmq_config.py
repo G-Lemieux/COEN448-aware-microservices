@@ -10,10 +10,20 @@ RABBITMQ_PASSWORD = os.getenv('RABBITMQ_PASSWORD', 'admin')
 
 def get_connection():
     credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASSWORD)
-    return pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials))
+    return pika.BlockingConnection(pika.ConnectionParameters(host=RABBITMQ_HOST,port=RABBITMQ_PORT, credentials=credentials))
 
 def create_channel(queue_name):
+    print(RABBITMQ_USER)
+    print(RABBITMQ_PASSWORD)
     connection = get_connection()
     channel = connection.channel()
-    channel.queue_declare(queue=queue_name, durable=True)  # Declare a durable queue
+    # Declare an exchange
+    channel.exchange_declare(exchange="user_order", exchange_type='direct', durable=True)
+
+    # Declare a queue
+    channel.queue_declare(queue=queue_name, durable=True)
+
+    # Bind the queue to the exchange with a routing key
+    channel.queue_bind(exchange="user_order", queue=queue_name, routing_key=queue_name)
+
     return channel, connection

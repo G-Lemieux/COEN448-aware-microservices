@@ -142,9 +142,9 @@ class User(Resource):
         users_collection.update_one({'userId': id}, {'$set': data})
         new_user: dict = users_collection.find_one({'userId': id})
         
-        # emails = new_user["emails"]
-        # deliveryAddress = new_user["deliveryAddress"]
+        emails = new_user["emails"]
+        deliveryAddress = new_user["deliveryAddress"]
 
-        # # Publish the update event
-        # publish_user_update_event(id, emails, deliveryAddress)
+        # Publish the update event
+        publish_user_update_event(id, emails, deliveryAddress)
         return [old_user, new_user]
