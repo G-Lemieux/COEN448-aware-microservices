@@ -13,6 +13,7 @@ Models:
         - country (str): Country.
     Order:
         - orderId (str): The unique identifier for an order.
+        - userId (str): The unique identifier for an order.
         - items (list[Item]): List of items in the order.
         - userEmails (list[str]): A list of email addresses associated with the order.
         - deliveryAddress (DeliveryAddress): The delivery address of the user.
@@ -41,6 +42,7 @@ delivery_address_model = api.model('DeliveryAddress', {
 
 order_model = api.model('Order', {
     'orderId': fields.String(required=True, description='The unique identifier for an order'),
+    'userId': fields.String(required=True, description='The unique identifier for a user'),
     'items': fields.List(fields.Nested(item_model), required=True, description='List of items in the order'),
     'userEmails': fields.List(fields.String, required=True, description='A list of email addresses associated with the order'),
     'deliveryAddress': fields.Nested(delivery_address_model, required=True, description='The delivery address of the user'),

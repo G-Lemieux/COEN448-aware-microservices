@@ -7,6 +7,10 @@
             "type": "string",
             "description": "The unique identifier for an order"
         },
+        "userId": {
+            "type": "string",
+            "description": "The unique identifier for a user"
+        },
         "items": {
             "type": "array",
             "items": {

@@ -118,6 +118,7 @@ def setup_orders_collection():
         "required": ["orderId", "items", "userEmails", "deliveryAddress", "orderStatus"],
         "properties": {
             "orderId": {"bsonType": "string"},
+            "userId": {"bsonType": "string"},
             "items": {
                 "bsonType": "array",
                 "items": {
