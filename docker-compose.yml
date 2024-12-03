@@ -128,8 +128,6 @@ services:
       - KONG_ADMIN_LISTEN=0.0.0.0:8001
       - KONG_PROXY_LISTEN=0.0.0.0:8000
       - P_VALUE=${P_VALUE}
-      # - USER_SERVICE_V1_WEIGHT=
-      # - USER_SERVICE_V2_WEIGHT=
     ports:
       - "8000:8000"
       - "8443:8443"
