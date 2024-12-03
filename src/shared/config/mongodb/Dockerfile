@@ -9,14 +9,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements file and install Python dependencies
-COPY requirements.txt .
+COPY src/shared/config/mongodb/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the Python scripts and .env file
-COPY setup_mongodb.py /app
-COPY seed_database.py /app
+COPY src/shared/config/mongodb/setup_mongodb.py /app
+COPY src/shared/config/mongodb/seed_database.py /app
 COPY .env /app
-COPY entrypoint.sh /app
+COPY src/shared/config/mongodb/entrypoint.sh /app
 
 # Make the entrypoint script executable
 RUN chmod +x entrypoint.sh

@@ -18,8 +18,8 @@ services:
     image: python:3.10-slim
     container_name: mongo-setup
     build:
-      context: ./src/shared/config/mongodb/
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/shared/config/mongodb/Dockerfile
     depends_on:
       - mongodb
     env_file:
