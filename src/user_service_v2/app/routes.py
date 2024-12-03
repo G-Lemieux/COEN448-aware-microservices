@@ -10,6 +10,8 @@ Routes:
 Functions:
     UserList.post(): Creates a new user with the provided data.
     User.put(id: str): Updates an existing user with the provided data.
+Note:
+    This is V2 of the microservice that automatically sets the dates.
 """
 
 from flask import request, Flask, current_app
@@ -18,6 +20,7 @@ from bson.objectid import ObjectId
 import uuid
 from user_service_v2.app.models import api, user_model, delivery_address_model
 from user_service_v2.app.events import publish_user_update_event
+from datetime import datetime
 
 # The current_app variable is a proxy to the Flask application handling the request.
 current_app : Flask
@@ -79,6 +82,12 @@ class UserList(Resource):
             
         # Generate a unique userId
         data['userId'] = str(uuid.uuid4())
+
+        # Set createdAt and updatedAt fields automatically
+        current_time = datetime.utcnow()
+        data['createdAt'] = current_time
+        data['updatedAt'] = current_time
+
         user_id: ObjectId = users_collection.insert_one(data).inserted_id
         user: dict = users_collection.find_one({'_id': ObjectId(user_id)})
         return user, 201
@@ -138,6 +147,10 @@ class User(Resource):
         old_user = users_collection.find_one({'userId': id})
         if not old_user:
             api.abort(404, "User not found")
+
+        # update date automatically
+        current_time = datetime.utcnow()
+        data['updatedAt'] = current_time
 
         users_collection.update_one({'userId': id}, {'$set': data})
         new_user: dict = users_collection.find_one({'userId': id})

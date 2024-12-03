@@ -54,7 +54,7 @@ class OrderList(Resource):
             api.abort(400, f'Invalid JSON data: {str(e)}')
 
         # Ensure no other fields are present
-        allowed_fields = {'items', 'userEmails', 'deliveryAddress', 'orderStatus', 'createdAt', 'updatedAt'}
+        allowed_fields = {'items', 'userEmails', 'deliveryAddress', 'orderStatus', 'createdAt', 'updatedAt', 'userId'}
         for field in data:
             if field not in allowed_fields:
                 api.abort(400, f'Invalid field: {field}')

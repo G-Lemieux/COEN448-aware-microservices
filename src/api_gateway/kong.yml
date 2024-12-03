@@ -35,7 +35,7 @@ services:
     routes:
       - name: user_service_route
         paths:
-          - "/users"
+          - "/users/"
           - "/users/(?<user_id>[\\w-]+)"
         strip_path: false
         methods:
