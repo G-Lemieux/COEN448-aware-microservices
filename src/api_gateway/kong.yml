@@ -42,13 +42,3 @@ services:
           - POST
           - PUT
 
-          
-# plugins:
-#   - name: traffic-split
-#     route: user_service_route
-#     config:
-#       rules:
-#         - upstream_name: user_service_v1_upstream
-#           weight: ${USER_SERVICE_V1_WEIGHT}
-#         - upstream_name: user_service_v2_upstream
-#           weight: ${USER_SERVICE_V2_WEIGHT}
