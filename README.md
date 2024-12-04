@@ -20,10 +20,8 @@ The project directory structure is organized as follows:
 
 ```
 .
-├── aws
-│   ├── broken-microservices.pem
-│   ├── github_actions_id_rsa
-│   └── github_actions_id_rsa.pub
+├── .env.example
+├── .gitignore
 ├── docker-compose.yml
 ├── docs
 │   ├── broken-microservices-arch.drawio
