@@ -14,6 +14,111 @@ The architecture of the Broken-Microservices project is composed of the followin
 
 ![Architecture Diagram](docs/broken-microservices-arch.png)
 
+## Project Directory Structure
+
+The project directory structure is organized as follows:
+
+```
+.
+├── aws
+│   ├── broken-microservices.pem
+│   ├── github_actions_id_rsa
+│   └── github_actions_id_rsa.pub
+├── docker-compose.yml
+├── docs
+│   ├── broken-microservices-arch.drawio
+│   ├── broken-microservices-arch.png
+│   ├── cloud-programming-assignment-2-report.pdf
+│   ├── insomnia-testing-docs.json
+│   ├── microservices_architecture.png
+│   └── swagger
+│       ├── order-service-html-documentation
+│       │   └── index.html
+│       ├── order-service-swagger.json
+│       ├── order-swagger.yaml
+│       ├── user-service-html-documentation
+│       │   └── index.html
+│       ├── user-service-swagger.json
+│       └── user-swagger.yaml
+├── LICENSE
+├── README.md
+├── src
+│   ├── api_gateway
+│   │   ├── docker-entrypoint.sh
+│   │   ├── Dockerfile
+│   │   ├── kong.conf
+│   │   └── kong.yml
+│   ├── __init__.py
+│   ├── order_service
+│   │   ├── app
+│   │   │   ├── config.py
+│   │   │   ├── events.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── config.cpython-310.pyc
+│   │   │   │   ├── events.cpython-310.pyc
+│   │   │   │   ├── __init__.cpython-310.pyc
+│   │   │   │   ├── models.cpython-310.pyc
+│   │   │   │   └── routes.cpython-310.pyc
+│   │   │   └── routes.py
+│   │   ├── Dockerfile
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-310.pyc
+│   │   │   └── wsgi.cpython-310.pyc
+│   │   ├── requirements.txt
+│   │   └── wsgi.py
+│   ├── setup.py
+│   ├── shared
+│   │   ├── config
+│   │   │   ├── __init__.py
+│   │   │   ├── mongodb
+│   │   │   │   ├── Dockerfile
+│   │   │   │   ├── entrypoint.sh
+│   │   │   │   ├── requirements.txt
+│   │   │   │   ├── seed_database.py
+│   │   │   │   └── setup_mongodb.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── __init__.cpython-310.pyc
+│   │   │   │   └── rabbitmq_config.cpython-310.pyc
+│   │   │   └── rabbitmq_config.py
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   └── __init__.cpython-310.pyc
+│   │   └── schemas
+│   │       ├── order_schema.json
+│   │       └── user_schema.json
+│   ├── user_service_v1
+│   │   ├── app
+│   │   │   ├── config.py
+│   │   │   ├── events.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py
+│   │   │   └── routes.py
+│   │   ├── Dockerfile
+│   │   ├── __init__.py
+│   │   ├── requirements.txt
+│   │   └── wsgi.py
+│   └── user_service_v2
+│       ├── app
+│       │   ├── config.py
+│       │   ├── events.py
+│       │   ├── __init__.py
+│       │   ├── models.py
+│       │   └── routes.py
+│       ├── Dockerfile
+│       ├── __init__.py
+│       ├── requirements.txt
+│       └── wsgi.py
+└── tests
+    ├── test_generate_diagram.py
+    ├── test_mongodb_docker.py
+    └── test_rabbitmq_exchange.py
+
+22 directories, 73 files
+```
+
 ## Running the Project
 
 To run the Broken-Microservices project using Docker, follow these steps:
