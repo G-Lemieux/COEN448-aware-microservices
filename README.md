@@ -1,18 +1,26 @@
-# Broken-Microservices 
+# Aware-Microservices 
 ## Project Overview
 
-Broken-Microservices is a project designed to demonstrate the architecture and implementation of a microservices-based system. This project utilizes various technologies to build a robust and scalable system, including MongoDB for the database, Flask for the microservices, Kong for the API gateway, and RabbitMQ for the event-driven system.
+Aware-Microservices is a project designed to demonstrate the architecture and implementation of a microservices-based system. This project utilizes various technologies to build a robust and scalable system, including MongoDB for the database, Flask for the microservices, Kong for the API gateway, and RabbitMQ for the event-driven system.
 
 ## Architecture
 
-The architecture of the Broken-Microservices project is composed of the following components:
+The architecture of the Aware-Microservices project is composed of the following components:
 
 - **MongoDB**: A NoSQL database used to store and manage data.
 - **Flask**: A lightweight WSGI web application framework used to build the microservices.
 - **Kong**: An API gateway that provides a single entry point for all the microservices, handling routing, authentication, and other API management tasks.
 - **RabbitMQ**: A message broker that facilitates communication between the microservices in an event-driven manner.
 
-![Architecture Diagram](docs/broken-microservices-arch.png)
+![Architecture Diagram](docs/aware-microservices-arch.png)
+
+*Figure 1: High-level architecture diagram of the Aware-Microservices project, illustrating the interaction between various components such as MongoDB, Flask, Kong, and RabbitMQ.*
+
+![Deployed Architecture Diagram](docs/deployed-architecture.png)
+
+*Figure 2: Deployed architecture diagram of the Aware-Microservices project, showing the deployment setup and interaction between various components in a production environment.*
+
+
 
 ## Project Directory Structure
 
@@ -24,8 +32,8 @@ The project directory structure is organized as follows:
 ├── .gitignore
 ├── docker-compose.yml
 ├── docs
-│   ├── broken-microservices-arch.drawio
-│   ├── broken-microservices-arch.png
+│   ├── aware-microservices-arch.drawio
+│   ├── aware-microservices-arch.png
 │   ├── cloud-programming-assignment-2-report.pdf
 │   ├── insomnia-testing-docs.json
 │   ├── microservices_architecture.png
@@ -119,7 +127,7 @@ The project directory structure is organized as follows:
 
 ## Running the Project
 
-To run the Broken-Microservices project using Docker, follow these steps:
+To run the Aware-Microservices project using Docker, follow these steps:
 
 1. Ensure you have Docker installed on your Linux system.
 2. Set the environment variables using the `.env.example` file as a template.
@@ -137,4 +145,4 @@ The project requires certain environment variables to be set for proper configur
 
 ## Conclusion
 
-The Broken-Microservices project showcases the implementation of a microservices architecture using modern technologies. By following the instructions provided, you can set up and run the project on your local machine, gaining insights into the workings of a microservices-based system.
+The Aware-Microservices project showcases the implementation of a microservices architecture using modern technologies. By following the instructions provided, you can set up and run the project on your local machine, gaining insights into the workings of a microservices-based system.
