@@ -1,13 +1,29 @@
+"""__summary__
+This module handles the publishing of user update events to a RabbitMQ queue.
+
+Author:
+    @TheBarzani
+"""
+
 import json
-import pika
-from shared.config.rabbitmq_config import create_channel
-import os
+from flask import current_app
 from dotenv import load_dotenv
+from shared.config.rabbitmq_config import create_channel
 
 load_dotenv()
-QUEUE_NAME = os.getenv('RABBITMQ_QUEUE_NAME')
+QUEUE_NAME = current_app.config['RABBITMQ_QUEUE_NAME']
 
-def publish_user_update_event(user_id, email, address):
+def publish_user_update_event(user_id: int, email: str, address: str) -> None:
+    """
+    Publishes an event to notify about a user update.
+    Args:
+        user_id (int): The ID of the user.
+        email (str): The email address of the user.
+        address (str): The delivery address of the user.
+    Returns:
+        None  
+    """
+
     channel, connection = create_channel(QUEUE_NAME)
     event = {
         'userId': user_id,

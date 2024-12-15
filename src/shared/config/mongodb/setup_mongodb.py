@@ -1,4 +1,4 @@
-"""
+"""_summary_
 This script sets up MongoDB collections for a microservices architecture.
 It initializes the 'users' and 'orders' collections with appropriate schema validation.
 
@@ -11,9 +11,9 @@ Author:
     @TheBarzani
 """
 
+import os
 from pymongo import MongoClient
 from dotenv import load_dotenv
-import os
 
 # Load environment variables from .env
 load_dotenv()
@@ -29,9 +29,8 @@ if not MONGO_URI or not DATABASE_NAME:
 client = MongoClient(MONGO_URI)
 db = client[DATABASE_NAME]
 
-
 # Initialize Users Collection
-def setup_users_collection():
+def setup_users_collection() -> None:
     """
     Sets up the 'users' collection in the MongoDB database with a JSON schema validator.
 
@@ -50,9 +49,10 @@ def setup_users_collection():
     - createdAt: date (optional)
     - updatedAt: date (optional)
 
-    If the collection already exists or creation fails, an exception is caught and an error message is printed.
+    If the collection already exists or creation fails, an exception is caught and an 
+    error message is printed.
     """
-    user_schema = {
+    user_schema: dict = {
         "bsonType": "object",
         "required": ["userId", "emails", "deliveryAddress"],
         "properties": {
@@ -80,15 +80,11 @@ def setup_users_collection():
         }
     }
 
-    try:
-        db.create_collection("users", validator={"$jsonSchema": user_schema}, validationLevel="strict")
-    except Exception as e:
-        print(f"Collection already exists or creation failed: {e}")
+    db.create_collection("users", validator={"$jsonSchema": user_schema}, validationLevel="strict")
 
-    # db.command("collMod", "users", validator={"$jsonSchema": user_schema}, validationLevel="strict")
 
 # Initialize Orders Collection
-def setup_orders_collection():
+def setup_orders_collection() -> None:
     """
     Sets up the 'orders' collection in MongoDB with a JSON schema validator.
 
@@ -99,21 +95,24 @@ def setup_orders_collection():
         - name (string): Name of the item.
         - quantity (int): Quantity of the item, must be at least 1.
         - price (double): Price of the item, must be at least 0.
-    - userEmails (array of strings): List of user email addresses, each must match the email pattern.
+    - userEmails (array of strings): List of user email addresses, each must match 
+                                     the email pattern.
     - deliveryAddress (object): Delivery address containing:
         - street (string): Street address.
         - city (string): City name.
         - state (string): State name.
         - postalCode (string): Postal code.
         - country (string): Country name.
-    - orderStatus (string): Status of the order, must be one of ["under process", "shipping", "delivered"].
+    - orderStatus (string): Status of the order, must be one of ["under process", 
+                            "shipping", "delivered"].
     - createdAt (date): Date when the order was created.
     - updatedAt (date): Date when the order was last updated.
 
-    If the collection already exists or creation fails, an exception is caught and an error message is printed.
+    If the collection already exists or creation fails, an exception is caught and 
+    an error message is printed.
     """
-    
-    order_schema = {
+
+    order_schema: dict = {
         "bsonType": "object",
         "required": ["orderId", "items", "userEmails", "deliveryAddress", "orderStatus"],
         "properties": {
@@ -146,21 +145,20 @@ def setup_orders_collection():
                     "country": {"bsonType": "string"}
                 }
             },
-            "orderStatus": {"bsonType": "string", "enum": ["under process", "shipping", "delivered"]},
+            "orderStatus": {"bsonType": "string", "enum": ["under process", "shipping",
+                                                           "delivered"]},
             "createdAt": {"bsonType": "date"},
             "updatedAt": {"bsonType": "date"}
         }
     }
 
-    try:
-        db.create_collection("orders", validator={"$jsonSchema": order_schema}, validationLevel="strict")
-    except Exception as e:
-        print(f"Collection already exists or creation failed: {e}")
+    db.create_collection("orders", validator={"$jsonSchema": order_schema}, validationLevel=
+                         "strict")
 
-    # db.command("collMod", "orders", validator={"$jsonSchema": order_schema}, validationLevel="strict")
-
-# Main function to set up the database
-def main():
+def main() -> None:
+    """
+    Main function to set up the MongoDB collections for users and orders.
+    """
     print("Setting up MongoDB...")
     # Drop existing collections if they exist
     db.users.drop()

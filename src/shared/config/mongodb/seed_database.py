@@ -1,7 +1,7 @@
-"""
+"""_summary_
 This script seeds a MongoDB database with sample data for users and orders collections.
-It connects to the MongoDB instance using credentials from a .env file, drops existing collections,
-and inserts new sample data.
+It connects to the MongoDB instance using credentials from a .env file, drops existing 
+collections, and inserts new sample data.
 
 Functions:
     seed_users() -> List[Dict[str, Any]]:
@@ -11,20 +11,19 @@ Functions:
     seed_orders(users: List[Dict[str, Any]]) -> None:
         Seeds the orders collection with sample order data.
         Takes a list of user documents to associate orders with users.
-
 Author:
     @TheBarzani        
 """
 
-from pymongo import MongoClient
-from dotenv import load_dotenv
-from datetime import datetime
 import random
 import os
 from typing import List, Dict, Any
+from datetime import datetime
+from pymongo import MongoClient
+from dotenv import load_dotenv
 
 # Load environment variables from .env
-load_dotenv(dotenv_path="/shared/config/mongodb/.env")
+load_dotenv()
 
 # Retrieve MongoDB credentials from .env
 MONGO_URI = os.getenv("MONGO_URI")
@@ -47,7 +46,8 @@ def seed_users() -> List[Dict[str, Any]]:
     """
     Seed the MongoDB database with user data.
     
-    The generated user data is then inserted into the 'users' collection in the MongoDB database.
+    The generated user data is then inserted into the 'users' collection in the MongoDB 
+    database.
     
     Returns:
         List[Dict[str, Any]]: A list of dictionaries representing the seeded users.
@@ -130,22 +130,23 @@ def seed_orders(users: List[Dict[str, Any]]) -> None:
     print(f"Seeded {len(orders)} orders.")
 
 # Main function
-def main():
+def main() -> None:
+    """
+    This function seeds the MongoDB database with sample user and order data.
+    """
     print("Dropping existing collections...")
-    # db.users.drop()  # Clear existing data
-    # db.orders.drop()
 
     print("Seeding database...")
-    users = seed_users()
+    users: List[Dict[str, Any]] = seed_users()
     seed_orders(users)
     print("Database seeding complete.")
     # Retrieve and print one user
-    user = db.users.find_one()
+    user: Dict[str, Any] = db.users.find_one()
     print("Sample User:")
     print(user)
 
     # Retrieve and print one order
-    order = db.orders.find_one()
+    order: Dict[str, Any] = db.orders.find_one()
     print("Sample Order:")
     print(order)
 

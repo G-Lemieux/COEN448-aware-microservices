@@ -1,33 +1,39 @@
-"""
-This module defines the routes for order-related operations in a Flask application using Flask-RESTx.
-It includes endpoints for creating, retrieving, and updating orders, with validation and error handling.
+"""_summary_
+This module defines the routes for order-related operations in a Flask application 
+using Flask-RESTx. It includes endpoints for creating, retrieving, and updating 
+orders, with validation and error handling.
+
 Classes:
-    OrderList(Resource): Handles the creation of new orders and retrieval of orders by status.
+    OrderList(Resource): Handles the creation of new orders and retrieval of orders 
+                         by status.
     OrderStatus(Resource): Handles the updating of order status.
     OrderDetails(Resource): Handles the updating of order emails or delivery address.
 Routes:
     /orders/ (POST): Creates a new order.
     /orders/ (GET): Retrieves orders by status.
     /orders/<string:id>/status (PUT): Updates the status of an existing order.
-    /orders/<string:id>/details (PUT): Updates the emails or delivery address of an existing order.
-Functions:
-    OrderList.post(): Creates a new order with the provided data.
-    OrderList.get(): Retrieves orders by status.
-    OrderStatus.put(id: str): Updates the status of an existing order.
-    OrderDetails.put(id: str): Updates the emails or delivery address of an existing order.
+    /orders/<string:id>/details (PUT): Updates the emails or delivery address of 
+                                       an existing order.
+Author:
+    @TheBarzani
 """
 
+
+import uuid
 from flask import request, Flask, current_app
 from flask_restx import Resource, fields
 from bson.objectid import ObjectId
-import uuid
-from order_service.app.models import api, order_model, item_model, delivery_address_model
+from order_service.app.models import api, order_model, delivery_address_model
 
 # The current_app variable is a proxy to the Flask application handling the request.
 current_app: Flask
 
 @api.route('/')
 class OrderList(Resource):
+    """_summary_
+    OrderList is a Flask-RESTful resource for handling HTTP requests related to orders.
+    """
+
     @api.expect(order_model)
     @api.marshal_with(order_model, code=201)
     def post(self) -> tuple:
@@ -42,19 +48,19 @@ class OrderList(Resource):
         6. Inserts the new order data into the database.
         7. Retrieves and returns the newly created order.
         Returns:
-            tuple: A tuple containing the newly created order data and the HTTP status code 201.
+            tuple: A tuple containing the newly created order data and the HTTP status 
+                   code 201.
         Raises:
-            werkzeug.exceptions.HTTPException: If the JSON data is invalid, required fields are missing,
-                               additional fields are present, or email addresses already exist.
+            werkzeug.exceptions.HTTPException: If the JSON data is invalid, required 
+                                               fields are missing,additional fields are 
+                                               present, or email addresses already exist.
         """
 
-        try:
-            data: dict = request.json
-        except Exception as e:
-            api.abort(400, f'Invalid JSON data: {str(e)}')
+        data: dict = request.json
 
         # Ensure no other fields are present
-        allowed_fields = {'items', 'userEmails', 'deliveryAddress', 'orderStatus', 'createdAt', 'updatedAt', 'userId'}
+        allowed_fields: set = {'items', 'userEmails', 'deliveryAddress', 'orderStatus',
+                               'createdAt', 'updatedAt', 'userId'}
         for field in data:
             if field not in allowed_fields:
                 api.abort(400, f'Invalid field: {field}')
@@ -72,14 +78,14 @@ class OrderList(Resource):
         for item in data['items']:
             if not isinstance(item, dict):
                 api.abort(400, 'Each item must be an object')
-            required_fields = ['itemId', 'quantity', 'price']
+            required_fields: list = ['itemId', 'quantity', 'price']
             for field in required_fields:
                 if field not in item or not isinstance(item[field], (str, int, float)):
                     api.abort(400, f'Each item must contain a valid {field}')
 
         # Validate deliveryAddress
-        delivery_address = data['deliveryAddress']
-        required_fields = ['street', 'city', 'state', 'postalCode', 'country']
+        delivery_address: dict = data['deliveryAddress']
+        required_fields: list = ['street', 'city', 'state', 'postalCode', 'country']
         if not isinstance(delivery_address, dict):
             api.abort(400, 'deliveryAddress must be an object')
         for field in required_fields:
@@ -106,25 +112,30 @@ class OrderList(Resource):
         Returns:
             list: A list of orders with the specified status.
         Raises:
-            werkzeug.exceptions.HTTPException: If the 'status' parameter is missing or invalid.
+            werkzeug.exceptions.HTTPException: If the 'status' parameter is missing 
+                                               or invalid.
         """
 
-        status = request.args.get('status')
+        status: str = request.args.get('status')
         if not status or status not in ['under process', 'shipping', 'delivered']:
             api.abort(400, 'Invalid or missing status parameter')
 
         orders_collection = current_app.orders_collection
-        orders = list(orders_collection.find({'orderStatus': status}))
+        orders: list = list(orders_collection.find({'orderStatus': status}))
         return orders
 
 @api.route('/<string:id>/status')
 @api.response(404, 'Order not found')
 class OrderStatus(Resource):
+    """_summary_
+    OrderStatus is a Flask-RESTful resource for handling HTTP requests related to order status.
+    """
     @api.expect(api.model('OrderStatus', {
-        'orderStatus': fields.String(required=True, description='Current status of the order', enum=['under process', 'shipping', 'delivered'])
+        'orderStatus': fields.String(required=True, description='Current status of the order', 
+                                     enum=['under process', 'shipping', 'delivered'])
     }))
     @api.marshal_with(order_model)
-    def put(self, id: str) -> dict:
+    def put(self) -> dict:
         """
         Update the status of an existing order based on the provided order ID.
         Args:
@@ -137,20 +148,19 @@ class OrderStatus(Resource):
             HTTPException: If the order with the given ID is not found.
         """
 
-        try:
-            data: dict = request.json
-        except Exception as e:
-            api.abort(400, f'Invalid JSON data: {str(e)}')
+        data: dict = request.json
 
-        if 'orderStatus' not in data or data['orderStatus'] not in ['under process', 'shipping', 'delivered']:
+        if 'orderStatus' not in data or data['orderStatus'] not in ['under process',
+                                                                    'shipping', 'delivered']:
             api.abort(400, 'Invalid or missing orderStatus')
 
         orders_collection = current_app.orders_collection
-        old_order = orders_collection.find_one({'orderId': id})
+        old_order: dict = orders_collection.find_one({'orderId': id})
         if not old_order:
             api.abort(404, "Order not found")
 
-        orders_collection.update_one({'orderId': id}, {'$set': {'orderStatus': data['orderStatus']}})
+        orders_collection.update_one({'orderId': id}, {'$set': {'orderStatus':
+            data['orderStatus']}})
         new_order: dict = orders_collection.find_one({'orderId': id})
 
         return [old_order, new_order]
@@ -158,14 +168,20 @@ class OrderStatus(Resource):
 @api.route('/<string:id>/details')
 @api.response(404, 'Order not found')
 class OrderDetails(Resource):
+    """_summary_
+    OrderDetails is a Flask-RESTful resource for handling HTTP requests related to order details.
+    """
     @api.expect(api.model('OrderDetails', {
-        'userEmails': fields.List(fields.String, description='A list of email addresses associated with the order'),
-        'deliveryAddress': fields.Nested(delivery_address_model, description='The delivery address of the user')
+        'userEmails': fields.List(fields.String, description='A list of email ' + 
+                                  'addresses associated with the order'),
+        'deliveryAddress': fields.Nested(delivery_address_model, description=
+                                         'The delivery address of the user')
     }))
     @api.marshal_with(order_model)
-    def put(self, id: str) -> dict:
+    def put(self) -> dict:
         """
-        Update the emails or delivery address of an existing order based on the provided order ID.
+        Update the emails or delivery address of an existing order based on the provided 
+        order ID.
         Args:
             id (str): The unique identifier of the order.
         Returns:
@@ -179,13 +195,10 @@ class OrderDetails(Resource):
             HTTPException: If the order with the given ID is not found.
         """
 
-        try:
-            data: dict = request.json
-        except Exception as e:
-            api.abort(400, f'Invalid JSON data: {str(e)}')
+        data: dict = request.json
 
         # Ensure no other fields are present
-        allowed_fields = {'userEmails', 'deliveryAddress'}
+        allowed_fields: set = {'userEmails', 'deliveryAddress'}
         for field in data:
             if field not in allowed_fields:
                 api.abort(400, f'Invalid field: {field}')
@@ -195,13 +208,15 @@ class OrderDetails(Resource):
 
         # Validate userEmails
         if 'userEmails' in data:
-            if not isinstance(data['userEmails'], list) or not all(isinstance(email, str) and '@' in email for email in data['userEmails']):
+            if not isinstance(data['userEmails'], list) or not all(isinstance(email, str)
+                                                                   and '@' in email for email
+                                                                   in data['userEmails']):
                 api.abort(400, 'userEmails must be an array of valid email addresses')
 
         # Validate deliveryAddress
         if 'deliveryAddress' in data:
-            delivery_address = data['deliveryAddress']
-            required_fields = ['street', 'city', 'state', 'postalCode', 'country']
+            delivery_address: dict = data['deliveryAddress']
+            required_fields: list = ['street', 'city', 'state', 'postalCode', 'country']
             if not isinstance(delivery_address, dict):
                 api.abort(400, 'deliveryAddress must be an object')
             for field in required_fields:
@@ -209,7 +224,7 @@ class OrderDetails(Resource):
                     api.abort(400, f'deliveryAddress must contain a valid {field}')
 
         orders_collection = current_app.orders_collection
-        old_order = orders_collection.find_one({'orderId': id})
+        old_order: dict = orders_collection.find_one({'orderId': id})
         if not old_order:
             api.abort(404, "Order not found")
 
