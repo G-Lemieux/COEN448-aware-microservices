@@ -20,3 +20,24 @@ Integration tests evaluate the interaction and integration of multiple modules o
 >- **Stubs**: Stubs provide canned answers to calls made during the test, usually not responding to anything outside what's programmed in for the test.
 >
 > These tools help in isolating the code under test and ensuring that tests are not dependent on the behavior of external components.
+
+## Running the Tests
+
+To run the tests for the Aware-Microservices project, follow these steps:
+
+1. Ensure that Docker Enginer is running.
+2. Execute the following command to run the tests:
+
+    ```bash
+    python -m pytest tests/test_services_integration_with_db.py
+    ```
+
+This command will run the specified test suite using `pytest`.
+
+Alternatively, you can run all the tests in the `tests` directory by executing:
+
+```bash
+pytest tests/
+```
+
+This command will run all the tests in the `tests` directory.
