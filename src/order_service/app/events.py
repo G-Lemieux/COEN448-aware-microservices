@@ -6,6 +6,7 @@ Author:
     @TheBarzani
 """
 
+import os
 import json
 from typing import Any, Dict, List, Optional
 from flask import current_app
@@ -13,8 +14,7 @@ from dotenv import load_dotenv
 from shared.config.rabbitmq_config import create_channel
 
 load_dotenv()
-
-QUEUE_NAME = current_app.config['RABBITMQ_QUEUE_NAME']
+QUEUE_NAME = os.getenv('RABBITMQ_QUEUE_NAME')
 
 def consume_user_update_events() -> None:
     """

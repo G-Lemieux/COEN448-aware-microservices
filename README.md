@@ -139,6 +139,27 @@ To run the Aware-Microservices project using Docker, follow these steps:
 
 This command will stop any running containers, build the images, and start the containers with the latest changes.
 
+## Running the Tests
+
+To run the tests for the Aware-Microservices project, follow these steps:
+
+1. Ensure that Docker Enginer is running.
+2. Execute the following command to run the tests:
+
+    ```bash
+    python -m pytest tests/test_services_integration_with_db.py
+    ```
+
+This command will run the specified test suite using `pytest`.
+
+Alternatively, you can run all the tests in the `tests` directory by executing:
+
+```bash
+pytest tests/
+```
+
+This command will run all the tests in the `tests` directory.
+
 ## Environment Variables
 
 The project requires certain environment variables to be set for proper configuration. Use the `.env.example` file as a template to create your own `.env` file with the necessary values.

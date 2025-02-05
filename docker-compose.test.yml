@@ -1,5 +1,4 @@
 
-
 services:
   mongodb:
     image: mongo:latest
@@ -11,8 +10,8 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
     ports:
       - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
+    networks:
+      - test_network
   
   mongodb-setup:
     image: python:3.10-slim
@@ -26,6 +25,8 @@ services:
       - .env
     links:
       - mongodb
+    networks:
+      - test_network
       
   order-service:
     build:
@@ -44,9 +45,11 @@ services:
       - RABBITMQ_QUEUE_NAME=${RABBITMQ_QUEUE_NAME}
     ports:
       - "5001:5000"
-    depends_on:
-      rabbitmq:
-          condition: service_healthy
+    # depends_on:
+    #   rabbitmq:
+    #       condition: service_healthy
+    networks:
+      - test_network
 
   user-service-v1:
     build:
@@ -65,9 +68,11 @@ services:
       - RABBITMQ_QUEUE_NAME=${RABBITMQ_QUEUE_NAME}
     ports:
       - "5002:5000"
-    depends_on:
-      rabbitmq:
-          condition: service_healthy
+    # depends_on:
+    #   rabbitmq:
+    #       condition: service_healthy
+    networks:
+      - test_network
   
   user-service-v2:
     build:
@@ -86,29 +91,33 @@ services:
       - RABBITMQ_QUEUE_NAME=${RABBITMQ_QUEUE_NAME}
     ports:
       - "5003:5000"
-    depends_on:
-      rabbitmq:
-          condition: service_healthy
+    # depends_on:
+    #   rabbitmq:
+    #       condition: service_healthy
+    networks:
+      - test_network
   
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq-container
-    hostname: rabbitmq
-    ports:
-      - "5673:5673" # RabbitMQ messaging port
-      - "15672:15672" # RabbitMQ management UI
-    expose:
-      - 5673
-      - 15672
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-      RABBITMQ_NODE_PORT: 5673 # had to change the default port because of a conflict with the mongodb port 
-    healthcheck:
-      test: rabbitmq-diagnostics check_port_connectivity
-      interval: 10s
-      timeout: 30s
-      retries: 3
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   container_name: rabbitmq-container
+  #   hostname: rabbitmq
+  #   ports:
+  #     - "5673:5673" # RabbitMQ messaging port
+  #     - "15672:15672" # RabbitMQ management UI
+  #   expose:
+  #     - 5673
+  #     - 15672
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+  #     RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+  #     RABBITMQ_NODE_PORT: 5673 # had to change the default port because of a conflict with the mongodb port 
+  #   healthcheck:
+  #     test: rabbitmq-diagnostics check_port_connectivity
+  #     interval: 10s
+  #     timeout: 30s
+  #     retries: 3
+  #   networks:
+  #     - test_network
 
   kong:
     image: kong:latest
@@ -117,7 +126,9 @@ services:
       context: ./src/api_gateway
       dockerfile: Dockerfile
       args: 
-        - P_VALUE=${P_VALUE}
+        - P_VAL=${P_VALUE}
+    env_file: 
+      - .env
     environment:
       - KONG_DATABASE=off
       - KONG_DECLARATIVE_CONFIG=/etc/kong/kong.yml
@@ -133,9 +144,12 @@ services:
       - "8443:8443"
       - "8001:8001"
       - "8444:8444"
-    depends_on:
+    depends_on: 
       - order-service
       - user-service-v1
+      - user-service-v2
+    networks:
+      - test_network
 
   konga: 
     container_name: api-gateway-ui
@@ -144,6 +158,8 @@ services:
       - NODE_ENV=production
     ports:
       - "1337:1337"
+    networks:
+      - test_network
 
-volumes:
-  mongodb_data:
+networks:
+  test_network:

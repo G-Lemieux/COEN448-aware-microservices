@@ -13,8 +13,8 @@ COPY kong.yml /etc/kong/kong.yml.template
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 # Environment variables
-ARG P_VALUE=50
-ENV P_VALUE=${P_VALUE}
+ARG P_VAL=50
+ENV P_VALUE=${P_VAL}
 
 # Expose necessary ports
 EXPOSE 8000 8443 8001 8444
