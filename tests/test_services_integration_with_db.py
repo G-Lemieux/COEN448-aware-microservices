@@ -25,10 +25,10 @@ def docker_compose():
     yield  # Run tests
     
     # Tear down Docker Compose
-    subprocess.run(
-        ["docker", "compose", "-f", "docker-compose.test.yml", "down", "-v"],
-        check=True
-    )
+    # subprocess.run(
+    #     ["docker", "compose", "-f", "docker-compose.test.yml", "down", "-v"],
+    #     check=True
+    # )
 
 # Helper function to wait for service readiness
 def wait_for_service(url, timeout=200):
@@ -58,15 +58,6 @@ def mongo_client():
         )
     yield client
     client.close()
-
-# # Fixture for RabbitMQ connection
-# @pytest.fixture(scope="module")
-# def rabbitmq_connection():
-#     connection = pika.BlockingConnection(
-#         pika.ConnectionParameters("localhost", 5673)
-#     )
-#     yield connection
-#     connection.close()
 
 # Test: User Creation
 def test_user_creation(api_base_url, mongo_client):
@@ -102,3 +93,73 @@ def test_user_creation(api_base_url, mongo_client):
     user = users_collection.find_one({"userId": created_user["userId"]})
     assert user is not None
     assert user["emails"] == ["integration.test@example.com"]
+
+# Test: User Update
+def test_user_update(api_base_url, mongo_client):
+    # First create a user
+    user_payload = {
+        "firstName": "Update",
+        "lastName": "Tester",
+        "emails": ["update.test@example.com"],
+        "deliveryAddress": {
+            "street": "123 Test Street",
+            "city": "Testville",
+            "state": "Test State",
+            "postalCode": "12345",
+            "country": "Test Country"
+        }
+    }
+    
+    # Create user
+    create_response = requests.post(
+        f"{api_base_url}/users/", 
+        json=user_payload
+    )
+    
+    assert create_response.status_code == 201
+    created_user = create_response.json()
+    user_id = created_user["userId"]
+    
+    # Update the user
+    update_payload = {
+        "emails": ["updated.email@example.com"],
+        "deliveryAddress": {
+            "street": "456 Update Street",
+            "city": "Updateville",
+            "state": "Update State",
+            "postalCode": "54321",
+            "country": "Update Country"
+        }
+    }
+    
+    # Send update request
+    update_response = requests.put(
+        f"{api_base_url}/users/{user_id}", 
+        json=update_payload
+    )
+    
+    # Assertions for the response
+    assert update_response.status_code == 200
+    update_result = update_response.json()
+    
+    # The response should contain both old and new user data
+    old_user = update_result[0]
+    new_user = update_result[1]
+    
+    # Check old user data
+    assert old_user["emails"] == ["update.test@example.com"]
+    assert old_user["deliveryAddress"]["street"] == "123 Test Street"
+    
+    # Check new user data
+    assert new_user["emails"] == ["updated.email@example.com"]
+    assert new_user["deliveryAddress"]["street"] == "456 Update Street"
+    assert new_user["deliveryAddress"]["city"] == "Updateville"
+    
+    # Verify update in MongoDB
+    users_db = mongo_client[os.getenv("DATABASE_NAME")]
+    users_collection = users_db["users"]
+    updated_user = users_collection.find_one({"userId": user_id})
+    assert updated_user is not None
+    assert updated_user["emails"] == ["updated.email@example.com"]
+    assert updated_user["deliveryAddress"]["street"] == "456 Update Street"
+

@@ -45,9 +45,9 @@ services:
       - RABBITMQ_QUEUE_NAME=${RABBITMQ_QUEUE_NAME}
     ports:
       - "5001:5000"
-    # depends_on:
-    #   rabbitmq:
-    #       condition: service_healthy
+    depends_on:
+      rabbitmq:
+          condition: service_healthy
     networks:
       - test_network
 
@@ -68,9 +68,9 @@ services:
       - RABBITMQ_QUEUE_NAME=${RABBITMQ_QUEUE_NAME}
     ports:
       - "5002:5000"
-    # depends_on:
-    #   rabbitmq:
-    #       condition: service_healthy
+    depends_on:
+      rabbitmq:
+          condition: service_healthy
     networks:
       - test_network
   
@@ -91,33 +91,33 @@ services:
       - RABBITMQ_QUEUE_NAME=${RABBITMQ_QUEUE_NAME}
     ports:
       - "5003:5000"
-    # depends_on:
-    #   rabbitmq:
-    #       condition: service_healthy
+    depends_on:
+      rabbitmq:
+          condition: service_healthy
     networks:
       - test_network
   
-  # rabbitmq:
-  #   image: rabbitmq:3-management
-  #   container_name: rabbitmq-container
-  #   hostname: rabbitmq
-  #   ports:
-  #     - "5673:5673" # RabbitMQ messaging port
-  #     - "15672:15672" # RabbitMQ management UI
-  #   expose:
-  #     - 5673
-  #     - 15672
-  #   environment:
-  #     RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-  #     RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-  #     RABBITMQ_NODE_PORT: 5673 # had to change the default port because of a conflict with the mongodb port 
-  #   healthcheck:
-  #     test: rabbitmq-diagnostics check_port_connectivity
-  #     interval: 10s
-  #     timeout: 30s
-  #     retries: 3
-  #   networks:
-  #     - test_network
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-container
+    hostname: rabbitmq
+    ports:
+      - "5673:5673" # RabbitMQ messaging port
+      - "15672:15672" # RabbitMQ management UI
+    expose:
+      - 5673
+      - 15672
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_NODE_PORT: 5673 # had to change the default port because of a conflict with the mongodb port 
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    networks:
+      - test_network
 
   kong:
     image: kong:latest
@@ -163,3 +163,4 @@ services:
 
 networks:
   test_network:
+    driver: bridge
