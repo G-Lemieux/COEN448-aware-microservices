@@ -254,7 +254,7 @@ def test_order_creation(api_base_url, mongo_client):
 # Test: Get Order Status
 
 
-def test_retrieve_orders_by_status(api_base_url, mongo_client):
+def test_retrieve_orders_by_status(api_base_url):
     order_payload = []
 
     # Create a new user
@@ -388,11 +388,99 @@ def test_retrieve_orders_by_status(api_base_url, mongo_client):
     assert isinstance(
         response_data, list), f"Expected a list, but received a {type(response_data)}"
     assert len(response_data) > 0, "Returned an empty list."
-    # for item in response_data:
-    #     assert isinstance(
-    #         item, dict), f"Expected a dictionary, but got {type(item)}"
-    #     assert "status" in item
-    #     assert item["status"] == "under process"
+    for item in response_data:
+        assert isinstance(
+            item, dict), f"Expected a dictionary, but got {type(item)}"
+        assert 'orderStatus' in item
+        assert item["orderStatus"] == "under process"
+
+# Test: Update Order Status
+
+
+def test_update_order_status(api_base_url, mongo_client):
+    # Create an order
+    order_payload = {
+        "items": [{
+            "itemId": "item2",
+            "quantity": 5,
+            "price": 27.94
+        }],
+        "userEmails": ["verification@example.com"],
+        "deliveryAddress": {
+            "street": "205 Main Street",
+            "city": "Testville",
+            "state": "Test State",
+            "postalCode": "54321",
+            "country": "Test Country"
+        },
+        "orderStatus": "under process"
+    }
+
+    response = requests.post(
+        f"{api_base_url}/orders/",
+        json=order_payload
+    )
+    assert response.status_code == 201, f"Failed to create order."
+    new_order = response.json()
+    order_id = new_order["orderId"]
+
+    # Create new Status
+    update_payload = {"orderStatus": "shipping"}
+
+    update_response = requests.put(
+        f"{api_base_url}/orders/{order_id}/status",
+        json=update_payload
+    )
+    assert update_response.status_code == 200, f"Expected code 201, received: {update_response.status_code}"
+
+# Test: Update Order Details
+
+
+def test_update_order_details(api_base_url, mongo_client):
+    # Create an order
+    order_payload = {
+        "items": [{
+            "itemId": "item3",
+            "quantity": 4,
+            "price": 45.95
+        }],
+        "userEmails": ["verification@example.com"],
+        "deliveryAddress": {
+            "street": "205 Main Street",
+            "city": "Testville",
+            "state": "Test State",
+            "postalCode": "54321",
+            "country": "Test Country"
+        },
+        "orderStatus": "shipping"
+    }
+
+    response = requests.post(
+        f"{api_base_url}/orders/",
+        json=order_payload
+    )
+    assert response.status_code == 201, f"Failed to create order."
+    new_order = response.json()
+    order_id = new_order["orderId"]
+
+    # Create new Status
+    update_payload = {
+        "userEmails": ["new.address@example.com", "verification@example.com"],
+        "deliveryAddress": {
+            "street": "95 North Blvd",
+            "city": "Quality",
+            "state": "Test State",
+            "postalCode": "65421",
+            "country": "Test Country"
+        }
+    }
+
+    update_response = requests.put(
+        f"{api_base_url}/orders/{order_id}/details",
+        json=update_payload
+    )
+    assert update_response.status_code == 200, f"Expected code 201, received: {update_response.status_code}"
+
 
 # Test: Update Propagation
 
