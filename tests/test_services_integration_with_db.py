@@ -393,3 +393,92 @@ def test_retrieve_orders_by_status(api_base_url, mongo_client):
     #         item, dict), f"Expected a dictionary, but got {type(item)}"
     #     assert "status" in item
     #     assert item["status"] == "under process"
+
+# Test: Update Propagation
+
+
+def test_update_propagation(api_base_url, mongo_client):
+    # Create a User
+    user_payload = {
+        "firstName": "Jim",
+        "lastName": "Bob",
+        "emails": ["propagation.test@example.com"],
+        "deliveryAddress": {
+            "street": "56 Main Street",
+            "city": "Testville",
+            "state": "Test State",
+            "postalCode": "12345",
+            "country": "Test Country"
+        }
+    }
+    new_user_response = requests.post(
+        f"{api_base_url}/users/",
+        json=user_payload
+    )
+    assert new_user_response.status_code == 201, f"Failed to create New User: Code: {new_user_response.status_code}"
+    created_user = new_user_response.json()
+    user_id = created_user["userId"]
+
+    # Create an Order
+    order_payload = {
+        "items": [{
+            "itemId": "item3",
+            "quantity": 6,
+            "price": 36.99
+        }],
+        "userEmails": ["propagation.test@example.com"],
+        "deliveryAddress": {
+            "street": "56 Main Street",
+            "city": "Testville",
+            "state": "Test State",
+            "postalCode": "12345",
+            "country": "Test Country"
+        },
+        "orderStatus": "under process",
+        "userId": user_id
+    }
+    new_order_response = requests.post(
+        f"{api_base_url}/orders/",
+        json=order_payload
+    )
+    assert new_order_response.status_code == 201, f"Failed to create New Order: Code: {new_order_response.status_code}"
+    new_order = new_order_response.json()
+    order_id = new_order["orderId"]
+
+    # Update User
+    update_payload = {
+        "emails": ["prop.update@example.com"],
+        "deliveryAddress": {
+            "street": "123 North Blvd",
+            "city": "Updateville",
+            "state": "Update State",
+            "postalCode": "54321",
+            "country": "Update Country"
+        }
+    }
+
+    # Send update request
+    update_response = requests.put(
+        f"{api_base_url}/users/{user_id}",
+        json=update_payload
+    )
+
+    # Assertions for the response
+    assert update_response.status_code == 200, f"Failed to Update the User: Code: {update_response.status_code}"
+    update_result = update_response.json()
+
+    # The response should contain both old and new user data
+    new_user = update_result[1]
+    # Check new user data
+    assert new_user["emails"] == ["prop.update@example.com"]
+    assert new_user["deliveryAddress"]["street"] == "123 North Blvd"
+    assert new_user["deliveryAddress"]["city"] == "Updateville"
+
+    # Verify update in MongoDB
+    orders_db = mongo_client[os.getenv("DATABASE_NAME")]
+    orders_collection = orders_db["orders"]
+    updated_order = orders_collection.find_one({"orderId": order_id})
+    assert updated_order is not None
+    assert updated_order["userEmails"] == ["prop.update@example.com"]
+    assert updated_order["deliveryAddress"]["street"] == "123 North Blvd"
+    assert updated_order["userId"] == user_id
